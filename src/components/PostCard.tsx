@@ -9,9 +9,9 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Card, CardContent } from "./ui/card";
+import Link from "next/link";
 import {
   HeartIcon,
-  Link,
   LogInIcon,
   MessageCircleIcon,
   SendIcon,
@@ -92,31 +92,31 @@ const PostCard = ({
     <Card className="overflow-hidden">
       <CardContent className="p-4 sm:p-6">
         <div className="space-y-4">
-          <div className="flex flex-col space-x-3 sm:space-x-4">
-            <Avatar>
+          <div className="flex flex-col">
+            <div className="flex flex-row">
               <Link href={`/profile/${post.author.username}`}>
-                <AvatarImage src={post.author.image ?? "/avatar.png"} />
+                <Avatar>
+                  <AvatarImage src={post.author.image ?? "/avatar.png"} />
+                </Avatar>
               </Link>
-            </Avatar>
 
-            {/* POST HEADER & TEXT CONTENT */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 truncate">
-                  <Link
-                    href={`/profile/${post.author.username}`}
-                    className="font-semibold truncate"
-                  >
-                    {post.author.name}
-                  </Link>
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <div className="w-full flex flex-row items-start justify-between">
+                <div className="flex flex-col mx-3 items-start">
+                  {post?.author.username ? (
+                    <Link
+                      href={`/profile/${post.author.username}`}
+                      className="font-semibold truncate"
+                    >
+                      {post.author.name}
+                    </Link>
+                  ) : (
                     <Link href={`/profile/${post.author.username}`}>
                       @{post.author.username}
                     </Link>
-                    <span>•</span>
-                    <span>
-                      {formatDistanceToNow(new Date(post.createdAt))} ago
-                    </span>
+                  )}
+
+                  <div className="text-xs">
+                    {formatDistanceToNow(new Date(post.createdAt))}
                   </div>
                 </div>
                 {/* Check if current user is the post author */}
@@ -127,6 +127,10 @@ const PostCard = ({
                   />
                 )}
               </div>
+            </div>
+
+            {/* POST HEADER & TEXT CONTENT */}
+            <div className="flex-1 my-2">
               <p className="mt-2 text-sm text-foreground break-words">
                 {post.content}
               </p>
@@ -198,26 +202,30 @@ const PostCard = ({
               <div className="space-y-4">
                 {/* DISPLAY COMMENTS */}
                 {post.comments.map((comment) => (
-                  <div key={comment.id} className="flex space-x-3">
-                    <Avatar className="size-8 flex-shrink-0">
+                  <div key={comment.id} className="flex flex-row space-x-3">
+                    <Avatar className="size-6 flex-shrink-0">
                       <AvatarImage
                         src={comment.author.image ?? "/avatar.png"}
                       />
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span className="font-medium text-sm">
-                          {comment.author.name}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          @{comment.author.username}
-                        </span>
-                        <span className="text-sm text-muted-foreground">·</span>
-                        <span className="text-sm text-muted-foreground">
-                          {formatDistanceToNow(new Date(comment.createdAt))} ago
-                        </span>
+                    <div className="flex flex-col">
+                      <div className="flex-1 border rounded-xl p-2">
+                        {comment?.author.username && (
+                          <Link href={`/profile/${comment.author.username}`}>
+                            <div className="font-semibold text-sm">
+                              {comment?.author.name}
+                            </div>
+                          </Link>
+                        )}
+
+                        {/* comment content */}
+                        <p className="text-sm break-words">{comment.content}</p>
                       </div>
-                      <p className="text-sm break-words">{comment.content}</p>
+
+                      {/* date */}
+                      <div className="text-xs mx-3 my-2 text-muted-foreground">
+                        {formatDistanceToNow(new Date(comment.createdAt))}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -225,7 +233,7 @@ const PostCard = ({
 
               {user ? (
                 <div className="flex space-x-3">
-                  <Avatar className="size-8 flex-shrink-0">
+                  <Avatar className="size-6 flex-shrink-0">
                     <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                   </Avatar>
                   <div className="flex-1">
